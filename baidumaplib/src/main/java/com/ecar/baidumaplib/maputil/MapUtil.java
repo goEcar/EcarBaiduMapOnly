@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -42,6 +43,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class MapUtil {
+    public static boolean isOpenedMap;//是否打开过地图
+
     public static void openNavigation(LatLng startla, LatLng endla, String startAdd, String endAdd, final Activity context) {
         final NaviParaOption para = new NaviParaOption().startPoint(startla)
                 .endPoint(endla).startName(startAdd)
@@ -49,30 +52,32 @@ public class MapUtil {
         //处理华为手机
         if (isHuawei()) {
             if (isInstallByread("com.baidu.BaiduMap")) {
-                openNaviByIntent(context, para);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
+                    openNaviByIntent(context, para);
+                } else {
+                    BaiduMapNavigation.openBaiduMapNavi(para, context);
+                }
             } else {
-                openNaviByWeb(context, para);
+                BaiduMapNavigation.openBaiduMapNavi(para, context);
             }
-            return;
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
+                if(isOpenedMap){
+                    BaiduMapNavigation.openBaiduMapNavi(para, context);
+                }else{
+                    openNaviByIntent(context, para);
+                    isOpenedMap=true;
+                }
+            } else {
+                BaiduMapNavigation.openBaiduMapNavi(para, context);
+            }
         }
 
-        //非华为手机
-        boolean isCanopen ;
-        try {
-            isCanopen = BaiduMapNavigation.openBaiduMapNavi(para, context);
-        } catch (BaiduMapAppNotSupportNaviException e) {//没安装
-            e.printStackTrace();
-            openNaviByWeb(context, para);
-            return;
-        }
-        if (!isCanopen) { //开启百度地图失败则打开浏览器导航
-            openNaviByWeb(context, para);
-        }
     }
 
     /**
      * 方法描述：打开浏览器
-     * <p/>
+     * <p>
      *
      * @param
      * @return
@@ -88,7 +93,7 @@ public class MapUtil {
 
     /**
      * 方法描述：打开浏览器
-     * <p/>
+     * <p>
      *
      * @param startla 起始经纬度     endla   结束经纬度     sAdd 开始地址名称       eAdd 结束地址名称
      * @return
@@ -99,15 +104,15 @@ public class MapUtil {
         try {
             //结构说明地址 ：http://developer.baidu.com/map/uri-introandroid.htm
             String url = addString("intent://map/direction?origin=latlng:",
-                    String.valueOf(para.getStartPoint().latitude),",",
-                    String.valueOf(para.getStartPoint().longitude), "|name:",para.getStartName(),
+                    String.valueOf(para.getStartPoint().latitude), ",",
+                    String.valueOf(para.getStartPoint().longitude), "|name:", para.getStartName(),
                     "&destination=latlng:",
-                    String.valueOf(para.getEndPoint().latitude),",",
-                    String.valueOf(para.getEndPoint().longitude), "|name:",para.getEndName(),
+                    String.valueOf(para.getEndPoint().latitude), ",",
+                    String.valueOf(para.getEndPoint().longitude), "|name:", para.getEndName(),
                     "&mode=driving#Intent;scheme=bdapp;package=com.baidu.BaiduMap;end) ");
 //                            intent = Intent.getIntent("intent://map/direction?origin=latlng:34.264642646862,108.95108518068|name:我家&longitude:34.264642646862,108.95108518068&mode=driving®ion=西安&referer=Autohome|GasStation#Intent;scheme=bdapp;package=com.baidu.BaiduMap;end");
             Log.e("map", url);
-           intent=Intent.getIntent(url);
+            intent = Intent.getIntent(url);
             context.startActivity(intent); //启动调用
 //                Log.e("GasStation", "百度地图客户端已经安装");
         } catch (URISyntaxException e) {
@@ -117,7 +122,7 @@ public class MapUtil {
 
     /**
      * 方法描述：拼接字符串
-     * <p/>
+     * <p>
      *
      * @param strs字符串的可变集合
      * @return
@@ -129,7 +134,7 @@ public class MapUtil {
                 return strs[0];
             } else {
                 for (String str : strs) {
-                    lastString=lastString.concat(str);
+                    lastString = lastString.concat(str);
                 }
             }
         }
@@ -148,7 +153,7 @@ public class MapUtil {
 
     /**
      * 方法描述：判断是否为华为手机
-     * <p/>
+     * <p>
      *
      * @param
      * @return
@@ -164,7 +169,7 @@ public class MapUtil {
 
     /**
      * 方法描述： 是否安装了浏览器
-     * <p/>
+     * <p>
      *
      * @param
      * @return
@@ -181,8 +186,6 @@ public class MapUtil {
         final int size = (list == null) ? 0 : list.size();
         return size > 0;
     }
-
-
 
 
 }
