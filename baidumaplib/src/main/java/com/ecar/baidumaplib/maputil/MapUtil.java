@@ -62,11 +62,11 @@ public class MapUtil {
             }
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
-                if(isOpenedMap){
+                if (isOpenedMap) {
                     BaiduMapNavigation.openBaiduMapNavi(para, context);
-                }else{
+                } else {
                     openNaviByIntent(context, para);
-                    isOpenedMap=true;
+                    isOpenedMap = true;
                 }
             } else {
                 BaiduMapNavigation.openBaiduMapNavi(para, context);
@@ -160,11 +160,7 @@ public class MapUtil {
      */
     public static boolean isHuawei() {
         String bland = android.os.Build.MANUFACTURER;
-        if (!TextUtils.isEmpty(bland) && (bland.contains("HUAWEI") || bland.contains("华为") || bland.contains("huawei"))) {
-            return true;
-
-        }
-        return false;
+        return !TextUtils.isEmpty(bland) && (bland.contains("HUAWEI") || bland.contains("华为") || bland.contains("huawei"));
     }
 
     /**
