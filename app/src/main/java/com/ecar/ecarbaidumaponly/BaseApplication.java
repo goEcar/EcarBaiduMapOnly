@@ -13,7 +13,7 @@ package com.ecar.ecarbaidumaponly;/*
  *
  * 修改人:   金征
  *
- * 修改时间:  ${date} ${time} 
+ * 修改时间:  ${date} ${time}  1
  *
  * 修改备注: 
  *
@@ -23,6 +23,7 @@ package com.ecar.ecarbaidumaponly;/*
  */
 
 import android.app.Application;
+import android.util.Log;
 
 import com.baidu.mapapi.SDKInitializer;
 
@@ -32,5 +33,6 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SDKInitializer.initialize(this);
+        Log.i("tag","test") ;
     }
 }

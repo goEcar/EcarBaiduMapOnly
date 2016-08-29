@@ -33,17 +33,21 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.amap.api.maps2d.CoordinateConverter;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.navi.BaiduMapAppNotSupportNaviException;
 import com.baidu.mapapi.navi.BaiduMapNavigation;
 import com.baidu.mapapi.navi.NaviParaOption;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.List;
 
 public class MapUtil {
     public static boolean isOpenedMap;//是否打开过地图
+    public static String BAIDU_PACKNAME = "com.baidu.BaiduMap";//百度地图包名
+    public static String GAODE_PACKNAME = "com.autonavi.minimap";//高德地图包名
+
 
     public static void openNavigation(LatLng startla, LatLng endla, String startAdd, String endAdd, final Activity context) {
         final NaviParaOption para = new NaviParaOption().startPoint(startla)
@@ -51,28 +55,74 @@ public class MapUtil {
                 .endName(endAdd);
         //处理华为手机
         if (isHuawei()) {
-            if (isInstallByread("com.baidu.BaiduMap")) {
+            if (isInstallByread(BAIDU_PACKNAME)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
                     openNaviByIntent(context, para);
                 } else {
                     BaiduMapNavigation.openBaiduMapNavi(para, context);
                 }
             } else {
-                BaiduMapNavigation.openBaiduMapNavi(para, context);
+                if (isInstallByread(GAODE_PACKNAME)) { //打开高德地图
+                    startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
+                } else {
+                    openNaviByWeb(context, para);
+                }
             }
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
-                if (isOpenedMap) {
-                    BaiduMapNavigation.openBaiduMapNavi(para, context);
+            if (isInstallByread(BAIDU_PACKNAME)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
+                    if (isOpenedMap) {
+                        BaiduMapNavigation.openBaiduMapNavi(para, context);
+                    } else {
+                        openNaviByIntent(context, para);
+                        isOpenedMap = true;
+                    }
                 } else {
-                    openNaviByIntent(context, para);
-                    isOpenedMap = true;
+                    if (isInstallByread(BAIDU_PACKNAME)) { //打开百度地图
+                        BaiduMapNavigation.openBaiduMapNavi(para, context);
+                        return;
+                    }
+
+                    if (isInstallByread(GAODE_PACKNAME)) { //打开高德地图
+                        startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
+                    }
                 }
             } else {
-                BaiduMapNavigation.openBaiduMapNavi(para, context);
+                if (isInstallByread(GAODE_PACKNAME)) { //打开高德地图
+                    startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
+                } else {
+                    openNaviByWeb(context, para);
+                }
+
             }
         }
 
+    }
+
+    public static void startNativeGaode(Context context, String endLat, String endLng, String address) {
+        if (TextUtils.isEmpty(endLat) || TextUtils.isEmpty(endLng)) {
+            return;
+        }
+        if (TextUtils.isEmpty(address)) {
+            address = "目的地";
+        }
+        try {
+            String uri = "androidamap://navi?sourceApplication=app"
+                    .concat("&poiname=").concat(address)
+                    .concat("&lat=")
+                    .concat(endLat)
+                    .concat("&lon=")
+                    .concat(endLng)
+                    .concat("&dev=1&style=2");
+            Intent intent = new Intent("android.intent.action.VIEW",
+                    android.net.Uri.parse(uri));
+            intent.addCategory("android.intent.category.DEFAULT");
+            intent.setPackage(GAODE_PACKNAME);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "地址解析错误", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -117,6 +167,9 @@ public class MapUtil {
 //                Log.e("GasStation", "百度地图客户端已经安装");
         } catch (URISyntaxException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "未知错误", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -183,5 +236,51 @@ public class MapUtil {
         return size > 0;
     }
 
+    /**
+     * 方法描述：将百度定位转为高德定位
+     * <p>
+     *
+     * @param 百度LatLng
+     * @return
+     */
+    private static com.amap.api.maps2d.model.LatLng baidu2Gao(LatLng latLng) {
+//        latLng = convertBaiduToGPS(latLng);
+        //转为临时高德定位对象
+//        com.amap.api.maps2d.model.LatLng oldLath = new com.amap.api.maps2d.model.LatLng(latLng.latitude, latLng.longitude);
+//
+//        //开始转换
+//        CoordinateConverter coordinateConverter = new CoordinateConverter();
+//        coordinateConverter.from(CoordinateConverter.CoordType.BAIDU);
+//        com.amap.api.maps2d.model.LatLng newLatLng;
+//        try {
+//            coordinateConverter.coord(oldLath);
+//            newLatLng = coordinateConverter.convert();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+        double x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        double x = latLng.longitude - 0.0065, y = latLng.latitude - 0.006;
+        double z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+        double theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+        com.amap.api.maps2d.model.LatLng  newLatLng=new com.amap.api.maps2d.model.LatLng(z * Math.sin(theta)+ 0.0030,z * Math.cos(theta)-0.0049) ;
+        return newLatLng;
+    }
+
+    public static LatLng convertBaiduToGPS(LatLng sourceLatLng) {
+        // 将GPS设备采集的原始GPS坐标转换成百度坐标
+        com.baidu.mapapi.utils.CoordinateConverter converter = new com.baidu.mapapi.utils.CoordinateConverter();
+        converter.from(com.baidu.mapapi.utils.CoordinateConverter.CoordType.GPS);
+        // sourceLatLng待转换坐标
+        converter.coord(sourceLatLng);
+        LatLng desLatLng = converter.convert();
+        double latitude = 2 * sourceLatLng.latitude - desLatLng.latitude;
+        double longitude = 2 * sourceLatLng.longitude - desLatLng.longitude;
+        BigDecimal bdLatitude = new BigDecimal(latitude);
+        bdLatitude = bdLatitude.setScale(6, BigDecimal.ROUND_HALF_UP);
+        BigDecimal bdLongitude = new BigDecimal(longitude);
+        bdLongitude = bdLongitude.setScale(6, BigDecimal.ROUND_HALF_UP);
+        return new LatLng(bdLatitude.doubleValue(), bdLongitude.doubleValue());
+    }
 
 }
