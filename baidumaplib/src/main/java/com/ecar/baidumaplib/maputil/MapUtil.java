@@ -55,10 +55,16 @@ public class MapUtil {
                 .endName(endAdd);
         //处理华为手机
         if (isHuawei()) {
+//            Toast.makeText(context,"这是华为手机",Toast.LENGTH_SHORT).show();
+
             if (isInstallByread(BAIDU_PACKNAME)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
+//                    Toast.makeText(context,"系统是6.0",Toast.LENGTH_SHORT).show();
+
                     openNaviByIntent(context, para);
                 } else {
+//                    Toast.makeText(context,"系统是6.0以下",Toast.LENGTH_SHORT).show();
+
                     BaiduMapNavigation.openBaiduMapNavi(para, context);
                 }
             } else {
@@ -70,6 +76,8 @@ public class MapUtil {
             }
         } else {
             if (isInstallByread(BAIDU_PACKNAME)) {
+//                Toast.makeText(context,"安装了百度",Toast.LENGTH_SHORT).show();
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
                     if (isOpenedMap) {
                         BaiduMapNavigation.openBaiduMapNavi(para, context);
@@ -88,6 +96,8 @@ public class MapUtil {
                     }
                 }
             } else {
+//                Toast.makeText(context,"没安装百度",Toast.LENGTH_SHORT).show();
+
                 if (isInstallByread(GAODE_PACKNAME)) { //打开高德地图
                     startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
                 } else {
