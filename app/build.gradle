@@ -18,9 +18,6 @@ android {
             // 显示Log
             buildConfigField "boolean", "LOG_DEBUG", "true"
             minifyEnabled  false
-            zipAlignEnabled true
-            shrinkResources true
-            multiDexEnabled  true
             signingConfig signingConfigs.debug
         }
 
