@@ -48,6 +48,79 @@ public class MapUtil {
     public static String BAIDU_PACKNAME = "com.baidu.BaiduMap";//百度地图包名
     public static String GAODE_PACKNAME = "com.autonavi.minimap";//高德地图包名
 
+    public static void openBaiDuNavigation(LatLng startla, LatLng endla, String startAdd, String endAdd, final Activity context) {
+        final NaviParaOption para = new NaviParaOption().startPoint(startla)
+                .endPoint(endla).startName(startAdd)
+                .endName(endAdd);
+        //处理华为手机
+        if (isHuawei()) {
+            if (isInstallByread(BAIDU_PACKNAME)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
+                    openNaviByIntent(context, para);
+                    isOpenedMap = true;
+
+                } else {
+                    BaiduMapNavigation.openBaiduMapNavi(para, context);
+                }
+            } else {
+                openNaviByWeb(context, para);
+                isOpenedMap = true;
+
+            }
+        } else {
+            if (isInstallByread(BAIDU_PACKNAME)) {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
+                    if (isOpenedMap) {
+                        BaiduMapNavigation.openBaiduMapNavi(para, context);
+                    } else {
+                        openNaviByIntent(context, para);
+                        isOpenedMap = true;
+                    }
+                } else {
+                    if (isInstallByread(BAIDU_PACKNAME)) { //打开百度地图
+                        BaiduMapNavigation.openBaiduMapNavi(para, context);
+                        return;
+                    } else {
+                        openNaviByIntent(context, para);
+                        isOpenedMap = true;
+                    }
+                }
+            } else {
+                openNaviByWeb(context, para);
+                isOpenedMap = true;
+
+            }
+        }
+
+    }
+
+
+    public static void openGaoDeNavigation(LatLng startla, LatLng endla, String startAdd, String endAdd, final Activity context) {
+        final NaviParaOption para = new NaviParaOption().startPoint(startla)
+                .endPoint(endla).startName(startAdd)
+                .endName(endAdd);
+        //处理华为手机
+        if (isHuawei()) {
+//            Toast.makeText(context,"这是华为手机",Toast.LENGTH_SHORT).show();
+            if (isInstallByread(GAODE_PACKNAME)) { //打开高德地图
+                startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
+            } else {
+                openNaviByWeb(context, para);
+                isOpenedMap = true;
+
+            }
+        } else {
+            if (isInstallByread(GAODE_PACKNAME)) { //打开高德地图
+                startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
+            } else {
+                openNaviByWeb(context, para);
+                isOpenedMap = true;
+            }
+        }
+
+    }
+
 
     public static void openNavigation(LatLng startla, LatLng endla, String startAdd, String endAdd, final Activity context) {
         final NaviParaOption para = new NaviParaOption().startPoint(startla)
@@ -56,12 +129,13 @@ public class MapUtil {
         //处理华为手机
         if (isHuawei()) {
 //            Toast.makeText(context,"这是华为手机",Toast.LENGTH_SHORT).show();
-
             if (isInstallByread(BAIDU_PACKNAME)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //版本高于等于6.0
 //                    Toast.makeText(context,"系统是6.0",Toast.LENGTH_SHORT).show();
 
                     openNaviByIntent(context, para);
+                    isOpenedMap = true;
+
                 } else {
 //                    Toast.makeText(context,"系统是6.0以下",Toast.LENGTH_SHORT).show();
 
@@ -72,6 +146,8 @@ public class MapUtil {
                     startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
                 } else {
                     openNaviByWeb(context, para);
+                    isOpenedMap = true;
+
                 }
             }
         } else {
@@ -102,8 +178,8 @@ public class MapUtil {
                     startNativeGaode(context, String.valueOf(baidu2Gao(endla).latitude), String.valueOf(baidu2Gao(endla).longitude), endAdd);
                 } else {
                     openNaviByWeb(context, para);
+                    isOpenedMap = true;
                 }
-
             }
         }
 
@@ -210,7 +286,7 @@ public class MapUtil {
      * @param packageName 目标应用安装后的包名
      * @return 是否已安装目标应用
      */
-    private static boolean isInstallByread(String packageName) {
+    public static boolean isInstallByread(String packageName) {
         return new File("/data/data/" + packageName).exists();
     }
 
@@ -273,7 +349,7 @@ public class MapUtil {
         double x = latLng.longitude - 0.0065, y = latLng.latitude - 0.006;
         double z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
         double theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
-        com.amap.api.maps2d.model.LatLng  newLatLng=new com.amap.api.maps2d.model.LatLng(z * Math.sin(theta)+ 0.0030,z * Math.cos(theta)-0.0049) ;
+        com.amap.api.maps2d.model.LatLng newLatLng = new com.amap.api.maps2d.model.LatLng(z * Math.sin(theta) + 0.0030, z * Math.cos(theta) - 0.0049);
         return newLatLng;
     }
 
