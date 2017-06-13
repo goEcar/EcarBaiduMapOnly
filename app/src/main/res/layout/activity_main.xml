@@ -10,28 +10,38 @@
     tools:context="com.ecar.ecarbaidumaponly.MainActivity">
 
     <Button
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
         android:id="@+id/btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
         android:text="智能导航" />
 
     <Button
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/btn"
         android:id="@+id/btn_baidu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/btn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:text="百度导航" />
 
     <Button
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/btn_baidu"
         android:id="@+id/btn_gaode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/btn_baidu"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:text="高德导航" />
+
+    <Button
+
+        android:id="@+id/btn_tengxun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_gaode"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="腾讯导航" />
 </RelativeLayout>
