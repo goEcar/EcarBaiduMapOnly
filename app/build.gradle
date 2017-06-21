@@ -37,8 +37,10 @@ android {
             multiDexEnabled  true
 
             //加载默认混淆配置文件 progudard-android.txt在sdk目录里面，不用管，proguard.cfg是我们自己配<span></span>的混淆文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
             //签名
-//            signingConfig signingConfigs.relealse
+            signingConfig signingConfigs.debug
         }
     }
     signingConfigs {

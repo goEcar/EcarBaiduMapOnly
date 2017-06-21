@@ -167,12 +167,13 @@ public class MapTranslateUtils {
      * @param latLng 百度经纬度
      * @return
      */
-    public static com.amap.api.maps2d.model.LatLng baidu2Gao(LatLng latLng) {
+    public static LatLng baidu2Gao(LatLng latLng) {
+
         double x_pi = 3.14159265358979324 * 3000.0 / 180.0;
         double x = latLng.longitude - 0.0065, y = latLng.latitude - 0.006;
         double z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
         double theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
-        com.amap.api.maps2d.model.LatLng newLatLng = new com.amap.api.maps2d.model.LatLng(z * Math.sin(theta) + 0.0030, z * Math.cos(theta) - 0.0049);
+        LatLng newLatLng = new LatLng(z * Math.sin(theta) + 0.0030, z * Math.cos(theta) - 0.0049);
         return newLatLng;
     }
 

@@ -35,9 +35,6 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.navi.BaiduMapNavigation;
 import com.baidu.mapapi.navi.NaviParaOption;
 import com.ecar.baidumaplib.maputil.ui.MapTranslateUtils;
-import com.ecar.baidumaplib.maputil.ui.TengXunMapActivity;
-
-import java.math.BigDecimal;
 
 import static com.ecar.baidumaplib.maputil.ui.MapTranslateUtils.GAODE_PACKNAME;
 import static com.ecar.baidumaplib.maputil.ui.MapTranslateUtils.baidu2Gao;
