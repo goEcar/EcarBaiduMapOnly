@@ -12,4 +12,4 @@
             android:process=":remote">
             >
         </service>
-  不需要在项目里添加 
+  不需要在项目里添加 !
